@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RECCo SLA — Definitive Accessibility Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   REC DESIGN SYSTEM — EXACT TOKENS
+   Source: Figma → Foundations → Colors
+   ═══════════════════════════════════════════ */
+:root {
+  /* Base */
+  --white: #FFFFFF;
+  /* Brand */
+  --b25:  #F0EFFE;  --b50:  #E9E1FE;  --b100: #E3DFF0;
+  --b200: #CAC3FC;  --b300: #A69CF9;  --b400: #8A7AF8;
+  --b600: #4D38F5;  --b700: #2D32C7;  --b800: #1A299A;
+  --b900: #02185E;
+  /* System Gray */
+  --g25:  #FCFCFD;  --g50:  #F9F9FB;  --g100: #EFF1F5;
+  --g200: #DCDFEA;  --g300: #B9C0D4;  --g500: #5D6B98;
+  --g600: #4A5578;  --g700: #30374F;  --g800: #201E2E;
+  --g900: #101828;
+  /* Warning */
+  --w50:  #FFFAEB;  --w400: #FDB022;  --w700: #B54708;  --w800: #93370D;
+  /* Error */
+  --e50:  #FEF3F2;  --e600: #D92D20;  --e700: #B42318;  --e800: #912018;
+  /* Success */
+  --s50:  #ECFDF3;  --s700: #067647;  --s800: #085D3A;
+
+  --font: 'DM Sans', system-ui, sans-serif;
+  --mono: 'DM Mono', monospace;
+  --page: #EEECEA;
+  --rule: rgba(202,195,252,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--page); color: var(--g900); font-size: 13px; line-height: 1.5; }
+
+/* ── NAV ── */
+.topbar { background: var(--b900); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(202,195,252,0.15); }
+.topbar-brand { font-size: 12px; font-weight: 600; color: var(--b50); letter-spacing: 0.04em; display: flex; align-items: center; gap: 10px; }
+.topbar-brand::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--b300); display:block; }
+.topbar-tabs { display: flex; gap: 0; }
+.tb { padding: 0 16px; height: 52px; font-size: 12px; font-weight: 400; color: var(--b200); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: var(--font); white-space: nowrap; transition: all 0.12s; margin-bottom: -1px; }
+.tb:hover { color: #fff; }
+.tb.on { color: #fff; border-bottom-color: var(--b300); font-weight: 500; }
+
+/* ── PANE SYSTEM ── */
+.pane { display: none; }
+.pane.on { display: block; }
+
+/* ── PAGE SECTIONS ── */
+.wrap { padding: 0 32px 48px; }
+.intro { padding: 24px 32px 0; }
+.intro-title { font-size: 18px; font-weight: 600; color: var(--b900); margin-bottom: 4px; }
+.intro-sub { font-size: 12px; color: var(--g600); max-width: 680px; line-height: 1.6; margin-bottom: 16px; }
+.intro-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; border: 0.5px solid; }
+.pill-r { background:var(--e50); color:var(--e700); border-color:#FECDCA; }
+.pill-w { background:var(--w50); color:var(--w800); border-color:#FEDF89; }
+.pill-p { background:var(--s50); color:var(--s800); border-color:#ABEFC6; }
+.pill-b { background:var(--b25); color:var(--b800); border-color:var(--b200); }
+
+/* ── SECTION HEADING ── */
+.sh { font-family: var(--mono); font-size: 10px; color: #999; letter-spacing: 0.1em; text-transform: uppercase; padding: 24px 0 10px; }
+.sh-group { font-size: 11px; font-weight: 600; color: var(--b900); padding: 16px 0 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sc-tag { font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 500; }
+.sc-r { background:var(--e50); color:var(--e700); }
+.sc-w { background:var(--w50); color:var(--w800); }
+.sc-b { background:var(--b25); color:var(--b800); }
+
+/* ══════════════════════════════
+   AUDIT ROW — the main unit
+   ══════════════════════════════ */
+.ar {
+  display: grid;
+  grid-template-columns: 20px 1fr 30px 1fr 210px;
+  background: var(--white);
+  border: 1px solid rgba(202,195,252,0.4);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  align-items: stretch;
+  min-height: 100px;
+}
+.ar-sev { display:flex; align-items:center; justify-content:center; writing-mode:vertical-lr; font-family:var(--mono); font-size:8px; font-weight:600; color:#fff; letter-spacing:0.05em; }
+.sev-c { background:var(--e700); }
+.sev-w { background:var(--w700); }
+.sev-i { background:var(--b700); }
+
+.ar-pane { padding: 14px 16px; display:flex; flex-direction:column; gap:7px; justify-content:center; }
+.ar-lbl { font-family:var(--mono); font-size:9px; color:#bbb; text-transform:uppercase; letter-spacing:0.06em; }
+.ar-arrow { display:flex; align-items:center; justify-content:center; background:var(--b25); color:var(--b700); font-size:16px; }
+.ar-token { padding:12px 14px; background:#FAFAFE; border-left:1px solid rgba(202,195,252,0.3); display:flex; flex-direction:column; gap:5px; justify-content:center; }
+.tp-name { font-family:var(--mono); font-size:10px; color:var(--b700); font-weight:500; }
+.tp-r { font-size:11px; color:#555; }
+.tp-r strong { font-family:var(--mono); color:var(--g900); font-size:10px; }
+.tp-code { font-family:var(--mono); font-size:9.5px; background:var(--b25); color:var(--b800); padding:5px 7px; border-radius:4px; line-height:1.7; display:block; margin-top:3px; white-space:pre; }
+.tp-note { font-size:10px; color:#aaa; font-style:italic; line-height:1.4; }
+
+/* ── BADGES ── */
+.bx { display:inline-flex; align-items:center; font-family:var(--mono); font-size:10px; font-weight:600; padding:2px 7px; border-radius:4px; gap:3px; }
+.bx-f { background:var(--e50); color:var(--e700); border:0.5px solid #FECDCA; }
+.bx-p { background:var(--s50); color:var(--s800); border:0.5px solid #ABEFC6; }
+.bx-w { background:var(--w50); color:var(--w800); border:0.5px solid #FEDF89; }
+
+/* ══════════════════════════════
+   POWER BI FAITHFUL MOCKS
+   White backgrounds, exact layout
+   ══════════════════════════════ */
+
+/* Dashboard shell */
+.pbi { background:var(--white); border:1px solid #e8e5f0; border-radius:4px; font-family:var(--font); font-size:11px; color:var(--g900); overflow:hidden; }
+.pbi-titlebar { padding:10px 16px 8px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+.pbi-h1 { font-size:13px; font-weight:700; color:#1a1830; }
+.pbi-date { font-size:12px; font-weight:700; color:#1a1830; }
+.pbi-info { width:22px; height:22px; border-radius:50%; border:2px solid #888; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#888; }
+.pbi-body { display:grid; grid-template-columns:1fr auto; }
+.pbi-main { padding:10px 12px; flex:1; min-width:0; }
+
+/* KPI card — white bg, just the number colour changes */
+.kpi-card { background:var(--white); border:0.5px solid #EAE7F5; border-radius:4px; padding:9px 12px; display:inline-flex; flex-direction:column; gap:3px; min-width:150px; }
+.kpi-lbl { font-size:9px; font-weight:700; color:#1a1830; line-height:1.3; }
+.kpi-bad { font-size:28px; font-weight:700; color:var(--w400); line-height:1; }
+.kpi-fix { font-size:28px; font-weight:700; color:var(--w800); line-height:1; }
+
+/* Chip group */
+.chips { display:grid; grid-template-columns:1fr 1fr; gap:3px; }
+.chip { padding:5px 10px; border-radius:4px; font-size:10px; font-weight:500; text-align:center; border:1.5px solid transparent; font-family:var(--font); cursor:pointer; }
+/* Current (bad) */
+.c-sel-bad { background:#8A7AF8; color:#fff; }
+.c-unsel-bad { background:#EEF0F5; color:#555; }
+.c-dark-sel { background:#2C2B2E; color:#fff; }
+/* Fixed */
+.c-sel-fix { background:var(--b800); color:var(--b25); border-color:var(--b800); }
+.c-unsel-fix { background:var(--b25); color:var(--b800); border-color:var(--b200); }
+/* Focus demo */
+.c-sel-fix:focus-visible, .c-unsel-fix:focus-visible { outline:3px solid var(--b700); outline-offset:3px; }
+
+/* Filter sidebar — the core component the user asked about */
+.fp-old { background:#9B96D8; padding:10px 9px; border-radius:4px; font-size:10px; width:170px; flex-shrink:0; }
+.fp-new { background:var(--b900); padding:10px 9px; border-radius:4px; font-size:10px; width:170px; flex-shrink:0; }
+.fp-toprow { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.fp-ver-old { font-size:10px; font-weight:700; color:rgba(255,255,255,0.85); font-family:var(--mono); }
+.fp-ver-new { font-size:10px; font-weight:700; color:var(--b200); font-family:var(--mono); }
+.fp-reset-old { font-size:9px; padding:2px 6px; background:rgba(255,255,255,0.18); border:0.5px solid rgba(255,255,255,0.25); color:#fff; border-radius:3px; cursor:pointer; font-family:var(--font); }
+.fp-reset-new { font-size:9px; padding:2px 7px; background:rgba(233,225,254,0.12); border:1px solid var(--b200); color:var(--b50); border-radius:3px; cursor:pointer; font-family:var(--font); }
+.fp-reset-new:focus-visible { outline:3px solid var(--b50); outline-offset:2px; }
+.fp-heading { font-size:12px; font-weight:700; text-align:center; padding-bottom:6px; border-bottom:0.5px solid rgba(255,255,255,0.12); margin-bottom:6px; color:#fff; }
+.fp-lbl-old { font-size:9px; color:rgba(255,255,255,0.58); font-weight:600; margin-top:7px; margin-bottom:2px; }
+.fp-lbl-new { font-size:9px; color:var(--b50); font-weight:600; margin-top:7px; margin-bottom:2px; }
+.fp-sel-old { width:100%; background:rgba(255,255,255,0.14); border:0.5px solid rgba(255,255,255,0.22); color:#fff; font-size:9px; padding:3px 5px; border-radius:3px; font-family:var(--font); }
+.fp-sel-new { width:100%; background:var(--white); border:1px solid var(--b200); color:var(--b800); font-size:9px; padding:3px 5px; border-radius:3px; font-family:var(--font); }
+.fp-sel-new:focus-visible { outline:3px solid var(--b50); outline-offset:2px; }
+/* Radio button filter (Qualitative open state) */
+.fp-radio-grp { margin-top:4px; display:flex; flex-direction:column; gap:3px; }
+.fp-radio-row-old { display:flex; align-items:center; gap:4px; font-size:9px; color:rgba(255,255,255,0.75); cursor:pointer; }
+.fp-radio-row-new { display:flex; align-items:center; gap:4px; font-size:9px; color:var(--b50); cursor:pointer; }
+.fp-radio-row-new:focus-within input { outline:2px solid var(--b50); outline-offset:1px; border-radius:50%; }
+.fp-radio-dot-old { width:11px; height:11px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.fp-radio-dot-old.sel { border-color:#fff; background:rgba(255,255,255,0.3); }
+.fp-radio-dot-old.sel::after { content:''; width:5px; height:5px; border-radius:50%; background:#fff; }
+.fp-radio-dot-new { width:11px; height:11px; border-radius:50%; border:1.5px solid var(--b200); display:flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--white); }
+.fp-radio-dot-new.sel { border-color:var(--b700); background:var(--b25); }
+.fp-radio-dot-new.sel::after { content:''; width:5px; height:5px; border-radius:50%; background:var(--b700); }
+
+/* Donut */
+.donut-area { display:flex; gap:10px; align-items:flex-start; }
+.donut-lbl-row { display:flex; align-items:center; gap:5px; font-size:9px; color:#333; margin-bottom:3px; }
+.dl-sq { width:9px; height:9px; border-radius:1px; flex-shrink:0; }
+.dl-ci { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.dl-da { width:9px; height:2.5px; flex-shrink:0; margin-top:3px; }
+.dl-ri { width:9px; height:9px; border-radius:50%; border:2px solid; flex-shrink:0; }
+
+/* Table */
+.pt { width:100%; border-collapse:collapse; font-size:9px; }
+.pt th { background:#f0eef8; padding:4px 6px; text-align:left; font-weight:600; color:var(--g600); border-bottom:1px solid #ddd; }
+.pt th.fix { background:var(--b25); color:var(--b800); }
+.pt td { padding:4px 6px; border-bottom:0.5px solid #f4f2fb; color:#888; vertical-align:top; }
+.pt td.fix { color:var(--g700); }
+.pt tr.hover:hover td { background:var(--b25); cursor:pointer; }
+.pt tr:focus-visible { outline:2px solid var(--b700); outline-offset:-2px; }
+
+/* Hbar */
+.hb-wrap { width:100%; }
+.hb-row { margin-bottom:4px; }
+.hb-lbl-bad  { font-size:8px; color:#888; margin-bottom:1px; }
+.hb-lbl-fix  { font-size:8px; color:var(--g700); font-weight:500; margin-bottom:1px; }
+.hb-track { height:15px; border-radius:2px; display:flex; overflow:hidden; background:var(--b25); }
+.hb-seg { height:100%; display:flex; align-items:center; justify-content:center; font-size:7.5px; font-weight:600; }
+.hb-axis { display:flex; justify-content:space-between; font-size:7px; color:#888; margin-top:2px; }
+.hb-axis-fix { color:var(--g700); }
+
+/* Tooltip */
+.tip-bad { background:#888; color:#fff; font-size:10px; padding:8px 10px; border-radius:5px; display:inline-block; line-height:1.4; max-width:200px; }
+.tip-fix { background:var(--g900); color:var(--g25); font-size:10px; padding:8px 10px; border-radius:6px; border:1px solid var(--g700); display:inline-block; line-height:1.5; max-width:200px; }
+
+/* Popup card */
+.popup-bad { background:var(--white); border:1px solid #e0ddf5; border-radius:6px; padding:12px 14px; font-size:10px; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+.popup-fix  { background:var(--white); border:2px solid var(--b200); border-radius:6px; padding:12px 14px; font-size:10px; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+.popup-row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:0.5px solid #f0eef8; }
+.popup-key { color:var(--g600); font-size:9px; }
+.popup-val { font-weight:600; color:var(--g900); font-size:9px; }
+.popup-close-bad  { width:20px; height:20px; border-radius:50%; background:#555; border:none; color:#fff; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.popup-close-fix  { width:22px; height:22px; border-radius:50%; background:var(--b25); border:1px solid var(--b200); color:var(--b800); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.popup-close-fix:focus-visible { outline:3px solid var(--b700); outline-offset:2px; }
+
+/* Focus ring demo */
+.f-bad:focus-visible { outline:none; }
+.f-fix:focus-visible { outline:3px solid var(--b700); outline-offset:3px; }
+.f-fix-dark:focus-visible { outline:3px solid var(--b50); outline-offset:3px; }
+
+/* ── POUR cards ── */
+.pour-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.pour-card { background:var(--white); border:1px solid rgba(202,195,252,0.4); border-radius:10px; overflow:hidden; }
+.pour-hdr { padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(202,195,252,0.25); }
+.pour-letter { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; font-family:var(--mono); flex-shrink:0; }
+.pl-p { background:var(--b25); color:var(--b800); border-top:3px solid var(--b700); }
+.pl-o { background:var(--s50); color:var(--s800); border-top:3px solid var(--s700); }
+.pl-u { background:var(--w50); color:var(--w800); border-top:3px solid var(--w700); }
+.pl-r { background:var(--e50); color:var(--e700); border-top:3px solid var(--e700); }
+.pour-name { font-size:12px; font-weight:600; color:var(--b900); }
+.pour-def  { font-size:10px; color:var(--g600); }
+.pour-body { padding:10px 16px 12px; }
+.pi { padding:7px 0; border-bottom:0.5px solid rgba(202,195,252,0.25); }
+.pi:last-child { border-bottom:none; }
+.pi-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:3px; }
+.pi-name { font-size:11px; font-weight:600; color:var(--g900); }
+.pi-sc { font-family:var(--mono); font-size:9px; color:#bbb; white-space:nowrap; }
+.pi-fail { font-size:10px; font-family:var(--mono); background:var(--e50); color:var(--e700); padding:1px 5px; border-radius:3px; display:block; margin-bottom:2px; }
+.pi-fix  { font-size:10px; font-family:var(--mono); background:var(--s50); color:var(--s800); padding:1px 5px; border-radius:3px; display:block; }
+
+/* ── Dev checklist ── */
+.dev-table { width:100%; border-collapse:collapse; background:var(--white); border:1px solid rgba(202,195,252,0.4); border-radius:10px; overflow:hidden; font-size:11px; }
+.dev-table thead th { padding:8px 12px; background:var(--b25); color:var(--b800); font-weight:600; font-size:10px; border-bottom:1px solid var(--b200); text-align:left; }
+.dev-table tbody td { padding:8px 12px; border-bottom:0.5px solid rgba(202,195,252,0.25); color:var(--g700); vertical-align:top; line-height:1.5; }
+.dev-table tbody tr:last-child td { border-bottom:none; }
+.dev-table tbody tr:hover td { background:var(--b25); }
+.spr-1 { background:var(--e50); color:var(--e700); font-family:var(--mono); font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; }
+.spr-2 { background:var(--w50); color:var(--w800); font-family:var(--mono); font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; }
+.spr-3 { background:var(--b25); color:var(--b800); font-family:var(--mono); font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; }
+code { font-family:var(--mono); font-size:10px; background:var(--b25); color:var(--b800); padding:1px 4px; border-radius:2px; }
+
+/* ── Summary cards ── */
+.sum-strip { display:grid; grid-template-columns:repeat(5,1fr); background:var(--g900); }
+.sum-cell { padding:14px 20px; border-right:1px solid rgba(255,255,255,0.06); }
+.sum-cell:last-child { border-right:none; }
+.sum-n { font-size:26px; font-weight:600; line-height:1; margin-bottom:2px; }
+.sum-l { font-size:10px; color:rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="topbar">
+  <div class="topbar-brand">RECCo · SLA Dashboards · Accessibility Audit</div>
+  <div class="topbar-tabs">
+    <button class="tb on" onclick="go('colours',this)">Colour Fixes</button>
+    <button class="tb" onclick="go('filter',this)">Filter Panel</button>
+    <button class="tb" onclick="go('focus',this)">Focus &amp; Hover</button>
+    <button class="tb" onclick="go('tooltips',this)">Tooltips</button>
+    <button class="tb" onclick="go('pour',this)">POUR</button>
+    <button class="tb" onclick="go('checklist',this)">Dev Checklist</button>
+  </div>
+</nav>
+
+<!-- ── SUMMARY ── -->
+<div class="sum-strip">
+  <div class="sum-cell"><div class="sum-n" style="color:#F09595">7</div><div class="sum-l">Colour failures</div></div>
+  <div class="sum-cell"><div class="sum-n" style="color:#FAC775">5</div><div class="sum-l">Missing focus states</div></div>
+  <div class="sum-cell"><div class="sum-n" style="color:#FAC775">4</div><div class="sum-l">Hover state gaps</div></div>
+  <div class="sum-cell"><div class="sum-n" style="color:#FAC775">3</div><div class="sum-l">Tooltip issues</div></div>
+  <div class="sum-cell"><div class="sum-n" style="color:#C0DD97">3</div><div class="sum-l">Screen types covered</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 1 — COLOUR FIXES
+     ══════════════════════════════════════════════ -->
+<div id="p-colours" class="pane on">
+<div class="intro">
+  <div class="intro-title">Colour — What fails and exactly what to change</div>
+  <div class="intro-sub">All three SLA screens (Qualitative · Quantitative CSS · Quantitative REC Core). White card backgrounds are preserved exactly as in Power BI. Only the specific failing colour changes, using your REC Design System token only.</div>
+  <div class="intro-pills">
+    <span class="pill pill-b">All three screens</span>
+    <span class="pill pill-r">WCAG 1.4.1 · 1.4.3 · 1.4.11</span>
+    <span class="pill pill-b">REC DS tokens only</span>
+    <span class="pill pill-p">White backgrounds preserved</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 01 KPI NUMBERS -->
+  <div class="sh-group">KPI metric numbers — appears on all three screens <span class="sc-tag sc-r">CRITICAL · WCAG 1.4.11</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">01</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — all 3 screens</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="kpi-card"><div class="kpi-lbl">No. with 'Not Met Targets'</div><div class="kpi-bad">8</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">No. with 'Minor Improvement Required'</div><div class="kpi-bad">1</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">No. 'Value Not Provided'</div><div class="kpi-bad">0</div></div>
+      </div>
+      <span class="bx bx-f">✗ Warning-400 #FDB022 on white — 2.1:1 fails 3:1 minimum</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — white card preserved, text colour only changes</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="kpi-card"><div class="kpi-lbl">No. with 'Not Met Targets'</div><div class="kpi-fix">8</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">No. with 'Minor Improvement Required'</div><div class="kpi-fix">1</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">No. 'Value Not Provided'</div><div class="kpi-fix">0</div></div>
+      </div>
+      <span class="bx bx-p">✓ Warning-800 #93370D on white — 7.2:1</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Warning-800</div>
+      <div class="tp-r">Change text: <strong>#FDB022</strong> → <strong>#93370D</strong></div>
+      <div class="tp-r">Card bg: <strong>#FFFFFF</strong> unchanged</div>
+      <div class="tp-note">One token change fixes all KPI numbers across all screens.</div>
+    </div>
+  </div>
+
+  <!-- 02 QUALITATIVE CHIPS (dark-selected) -->
+  <div class="sh-group">Target Indicator chips — Qualitative screen <span class="sc-tag sc-r">CRITICAL · WCAG 1.4.3</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">02</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — Qualitative: "Meets Expectation" selected (dark fill)</div>
+      <div class="chips">
+        <button class="chip c-dark-sel f-bad" tabindex="0">Select all</button>
+        <button class="chip c-dark-sel f-bad" tabindex="0">Meets Expectation</button>
+        <button class="chip c-unsel-bad f-bad" tabindex="0">Not Applicable</button>
+        <button class="chip c-unsel-bad f-bad" tabindex="0">Minor Improvement Required</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-f">✗ No focus ring — outline:none on all chips</span>
+        <span class="bx bx-w">⚠ Off-system dark fill (#2C2B2E) — not a DS token</span>
+      </div>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Brand-800 selected, Brand-25 unselected. Tab to test focus.</div>
+      <div class="chips">
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Select all</button>
+        <button class="chip c-sel-fix f-fix" tabindex="0">✓ Meets Expectation</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Not Applicable</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Minor Imp. Required</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-p">✓ Brand-800 #1A299A + Brand-25 text — 10.1:1</span>
+        <span class="bx bx-p">✓ 3px Brand-700 focus ring visible</span>
+      </div>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-800 · Brand-25</div>
+      <div class="tp-r">Selected fill: <strong>#1A299A</strong></div>
+      <div class="tp-r">Selected text: <strong>#F0EFFE</strong></div>
+      <div class="tp-r">Unsel fill: <strong>#F0EFFE</strong></div>
+      <div class="tp-r">Unsel text: <strong>#1A299A</strong></div>
+      <div class="tp-r">Unsel border: <strong>#CAC3FC</strong></div>
+      <span class="tp-code">:focus-visible {
+  outline: 3px solid #2D32C7;
+  outline-offset: 3px;
+}</span>
+    </div>
+  </div>
+
+  <!-- 03 QUANTITATIVE CHIPS -->
+  <div class="sh-group">Target Indicator chips — Quantitative CSS + REC Core <span class="sc-tag sc-r">CRITICAL · WCAG 1.4.3</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">03</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — Brand-400 selected fill fails contrast</div>
+      <div class="chips">
+        <button class="chip c-unsel-bad f-bad" tabindex="0">Select all</button>
+        <button class="chip c-sel-bad f-bad" tabindex="0">Target Met</button>
+        <button class="chip c-unsel-bad f-bad" tabindex="0">Target Exceeded</button>
+        <button class="chip c-unsel-bad f-bad" tabindex="0">Target Not Met</button>
+      </div>
+      <span class="bx bx-f">✗ Brand-400 #8A7AF8 fill + white text — 2.8:1 fails 4.5:1</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — same layout, Brand-800 fill. Tab to test focus.</div>
+      <div class="chips">
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Select all</button>
+        <button class="chip c-sel-fix f-fix" tabindex="0">✓ Target Met</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Target Exceeded</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0">Target Not Met</button>
+      </div>
+      <span class="bx bx-p">✓ Brand-800 #1A299A + Brand-25 text — 10.1:1</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-800 · Brand-25</div>
+      <div class="tp-r">From: Brand-400 <strong>#8A7AF8</strong></div>
+      <div class="tp-r">To fill: <strong>#1A299A</strong></div>
+      <div class="tp-r">To text: <strong>#F0EFFE</strong></div>
+    </div>
+  </div>
+
+  <!-- 04 DONUT CHART -->
+  <div class="sh-group">Donut chart segments — all screens <span class="sc-tag sc-r">CRITICAL · WCAG 1.4.1 + 1.4.3</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">04</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — light purple + amber + coral fails contrast AND colour-only legend</div>
+      <div class="donut-area">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#9B96D8" stroke-width="17" stroke-dasharray="175.9 0" stroke-dashoffset="-3" transform="rotate(-90 40 40)"/>
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#FDB022" stroke-width="17" stroke-dasharray="7.3 168.6" stroke-dashoffset="-178.9" transform="rotate(-90 40 40)"/>
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#D85A30" stroke-width="17" stroke-dasharray="2.5 173.4" stroke-dashoffset="-186.2" transform="rotate(-90 40 40)"/>
+          <text x="40" y="44" text-anchor="middle" font-size="9" fill="#1a1830" font-family="DM Sans" font-weight="600">91.67%</text>
+        </svg>
+        <div>
+          <div class="donut-lbl-row"><span class="dl-ci" style="background:#9B96D8"></span>Meets Expectation 91.67%</div>
+          <div class="donut-lbl-row"><span class="dl-ci" style="background:#FDB022"></span>Value Not Provided 4.17%</div>
+          <div class="donut-lbl-row"><span class="dl-ci" style="background:#D85A30"></span>Minor Imp. Required 4.17%</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-f">✗ #9B96D8 — 2.4:1 fails · off Design System</span>
+        <span class="bx bx-f">✗ #FDB022 — 2.1:1 fails</span>
+        <span class="bx bx-f">✗ #D85A30 — 3.1:1 fails · not in Design System</span>
+        <span class="bx bx-f">✗ Colour-only legend — fails 1.4.1</span>
+      </div>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — DS 700-level tokens + distinct shapes in legend</div>
+      <div class="donut-area">
+        <svg width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="91.67% Meets Expectation, 4.17% Value Not Provided, 4.17% Minor Improvement Required">
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#2D32C7" stroke-width="17" stroke-dasharray="175.9 0" stroke-dashoffset="-3" transform="rotate(-90 40 40)"/>
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#B54708" stroke-width="17" stroke-dasharray="7.3 168.6" stroke-dashoffset="-178.9" transform="rotate(-90 40 40)"/>
+          <circle cx="40" cy="40" r="28" fill="none" stroke="#B42318" stroke-width="17" stroke-dasharray="2.5 173.4" stroke-dashoffset="-186.2" transform="rotate(-90 40 40)"/>
+          <text x="40" y="44" text-anchor="middle" font-size="9" fill="#1a1830" font-family="DM Sans" font-weight="600">91.67%</text>
+        </svg>
+        <div>
+          <div class="donut-lbl-row"><span class="dl-sq" style="background:#2D32C7"></span>Meets Expectation 91.67%</div>
+          <div class="donut-lbl-row"><span class="dl-da" style="background:#B54708"></span>Value Not Provided 4.17%</div>
+          <div class="donut-lbl-row"><span class="dl-ri" style="border-color:#B42318"></span>Minor Imp. Required 4.17%</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-p">✓ Brand-700 #2D32C7 — 8.8:1</span>
+        <span class="bx bx-p">✓ Warning-700 #B54708 — 5.4:1</span>
+        <span class="bx bx-p">✓ Error-700 #B42318 — 6.6:1 · plus shapes added</span>
+      </div>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-700 · Warn-700 · Error-700</div>
+      <div class="tp-r">Met: <strong>#2D32C7</strong> ■</div>
+      <div class="tp-r">Not Provided: <strong>#B54708</strong> —</div>
+      <div class="tp-r">Not Met/Minor: <strong>#B42318</strong> ○</div>
+      <div class="tp-r">Add: <strong>role="img"</strong></div>
+      <div class="tp-r">Add: <strong>aria-label</strong> with data summary</div>
+      <div class="tp-note">Shapes in legend fix colour-only encoding (1.4.1).</div>
+    </div>
+  </div>
+
+  <!-- 05 STACKED BARS -->
+  <div class="sh-group">Stacked horizontal bars — text on fills <span class="sc-tag sc-r">CRITICAL · WCAG 1.4.3</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">05</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — white text on Brand-400 bars fails · category labels too light</div>
+      <div class="hb-wrap">
+        <div class="hb-row"><div class="hb-lbl-bad">Change Management</div><div class="hb-track"><div class="hb-seg" style="width:100%;background:#8A7AF8;color:#fff">100.00%</div></div></div>
+        <div class="hb-row"><div class="hb-lbl-bad">Committee Managem...</div><div class="hb-track"><div class="hb-seg" style="width:100%;background:#8A7AF8;color:#fff">100.00%</div></div></div>
+        <div class="hb-row"><div class="hb-lbl-bad">Qualitative</div><div class="hb-track"><div class="hb-seg" style="width:88.24%;background:#8A7AF8;color:#fff">88.24%</div><div class="hb-seg" style="width:11.76%;background:#D85A30"></div></div></div>
+        <div class="hb-row"><div class="hb-lbl-bad">Stakeholder Engagem...</div><div class="hb-track"><div class="hb-seg" style="width:100%;background:#8A7AF8;color:#fff">100.00%</div></div></div>
+        <div class="hb-axis"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-f">✗ White on Brand-400 #8A7AF8 bar — 2.8:1 fails</span>
+        <span class="bx bx-f">✗ #888 category labels on white — 3.0:1 fails</span>
+        <span class="bx bx-f">✗ "Committee Managem..." truncated with no accessible alternative</span>
+      </div>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Brand-700/800 fills, Brand-25 text inside bars, Gray-700 labels</div>
+      <div class="hb-wrap">
+        <div class="hb-row"><div class="hb-lbl-fix">Change Management</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:100%;background:#1A299A;color:#F0EFFE">100.00%</div></div></div>
+        <div class="hb-row" tabindex="0" title="Committee Management — 100.00%"><div class="hb-lbl-fix">Committee Management</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:100%;background:#1A299A;color:#F0EFFE">100.00%</div></div></div>
+        <div class="hb-row"><div class="hb-lbl-fix">Qualitative</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:88.24%;background:#2D32C7;color:#F0EFFE">88.24%</div><div class="hb-seg" style="width:11.76%;background:#B42318"></div></div></div>
+        <div class="hb-row" tabindex="0" title="Stakeholder Engagement — 100.00%"><div class="hb-lbl-fix">Stakeholder Engagement</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:100%;background:#1A299A;color:#F0EFFE">100.00%</div></div></div>
+        <div class="hb-axis hb-axis-fix"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-p">✓ Brand-25 #F0EFFE on Brand-800 — 10.1:1</span>
+        <span class="bx bx-p">✓ Gray-700 #30374F labels on white — 11.8:1</span>
+        <span class="bx bx-p">✓ Full labels shown + aria-label on each row</span>
+      </div>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-800 · Gray-700</div>
+      <div class="tp-r">Primary bar: <strong>#1A299A</strong></div>
+      <div class="tp-r">Bar text: <strong>#F0EFFE</strong> Brand-25</div>
+      <div class="tp-r">Error bar: <strong>#B42318</strong></div>
+      <div class="tp-r">Category label: <strong>#30374F</strong></div>
+      <div class="tp-note">Full label text always shown. "Committee Managem..." truncation fixed with full text label.</div>
+    </div>
+  </div>
+
+  <!-- 06 DATA TABLE TEXT -->
+  <div class="sh-group">Data table — cell and header text <span class="sc-tag sc-w">SERIOUS · WCAG 1.4.3</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-w">06</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — #888 body text + no scope on headers</div>
+      <table class="pt">
+        <thead><tr><th>Service Definition</th><th>Service Provider</th><th>Service Section</th><th>Target Indicator</th></tr></thead>
+        <tbody>
+          <tr><td>RPA</td><td>Deloitte</td><td>Change Management</td><td>Meets Expectation</td></tr>
+          <tr><td>RTS</td><td>Capgemini</td><td>Qualitative</td><td>Minor Imp. Required</td></tr>
+        </tbody>
+      </table>
+      <span class="bx bx-f">✗ Body text #888 on white — 3.0:1 fails · no scope="col"</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Gray-700 body text, Brand-25 header bg, scope added</div>
+      <table class="pt">
+        <thead><tr><th class="fix" scope="col">Service Definition</th><th class="fix" scope="col">Service Provider</th><th class="fix" scope="col">Service Section</th><th class="fix" scope="col">Target Indicator</th></tr></thead>
+        <tbody>
+          <tr class="hover"><td class="fix">RPA</td><td class="fix">Deloitte</td><td class="fix">Change Management</td><td class="fix">Meets Expectation</td></tr>
+          <tr class="hover"><td class="fix">RTS</td><td class="fix">Capgemini</td><td class="fix">Qualitative</td><td class="fix">Minor Imp. Required</td></tr>
+        </tbody>
+      </table>
+      <span class="bx bx-p">✓ Gray-700 #30374F on white — 11.8:1 · scope="col" added</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Gray-700 · Brand-25</div>
+      <div class="tp-r">Body text: <strong>#30374F</strong></div>
+      <div class="tp-r">Header bg: <strong>#F0EFFE</strong></div>
+      <div class="tp-r">Header text: <strong>#1A299A</strong></div>
+      <div class="tp-r">Add: <strong>scope="col"</strong></div>
+      <div class="tp-r">Add: <strong>aria-label</strong> on table</div>
+    </div>
+  </div>
+
+</div><!-- end wrap -->
+</div><!-- end colours -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 2 — FILTER PANEL (dedicated)
+     ══════════════════════════════════════════════ -->
+<div id="p-filter" class="pane">
+<div class="intro">
+  <div class="intro-title">Filter Panel — old vs new, faithful to both screenshot states</div>
+  <div class="intro-sub">The filter panel appears on all three screens. Shown here in both states from the screenshots: standard dropdown view and the expanded radio button view (Qualitative open-filter state). Only the bg and input colours change — layout and labels are identical.</div>
+</div>
+
+<div class="wrap">
+  <div class="sh">Standard filter panel — Qualitative + Quantitative CSS + REC Core</div>
+
+  <div class="ar" style="min-height:340px">
+    <div class="ar-sev sev-c">FP</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — mid-purple bg, low-contrast inputs and labels</div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="fp-old">
+          <div class="fp-toprow">
+            <span class="fp-ver-old">1.4.1</span>
+            <button class="fp-reset-old">Reset Filters</button>
+          </div>
+          <div class="fp-heading">Filters</div>
+          <div class="fp-lbl-old">Assurance Period</div>
+          <select class="fp-sel-old"><option>Latest Month</option></select>
+          <div class="fp-lbl-old">Dataset Status</div>
+          <select class="fp-sel-old"><option>Current Version</option></select>
+          <div class="fp-lbl-old">Service Provider</div>
+          <select class="fp-sel-old"><option>All</option></select>
+          <div class="fp-lbl-old">Metric Description</div>
+          <select class="fp-sel-old"><option>All</option></select>
+          <div class="fp-lbl-old">Service Section</div>
+          <select class="fp-sel-old"><option>All</option></select>
+        </div>
+        <div style="font-size:10px;line-height:1.7;max-width:200px">
+          <div style="color:var(--e700);margin-bottom:4px"><strong>Failures:</strong></div>
+          <div style="color:var(--e700)">✗ Panel bg ~#9B96D8 — not Brand-900</div>
+          <div style="color:var(--e700)">✗ Input text white on purple — ~3.1:1</div>
+          <div style="color:var(--e700)">✗ Labels rgba(255,255,255,0.6) — ~3.4:1</div>
+          <div style="color:var(--e700)">✗ Reset button — no accessible name</div>
+          <div style="color:var(--e700)">✗ No focus ring on any element</div>
+          <div style="color:var(--e700)">✗ 1.4.1 version — no aria-label</div>
+        </div>
+      </div>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Brand-900 panel, white inputs, Brand-50 labels. Tab to test focus.</div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="fp-new">
+          <div class="fp-toprow">
+            <span class="fp-ver-new" aria-label="Dashboard version 1.4.1">v1.4.1</span>
+            <button class="fp-reset-new f-fix-dark" aria-label="Reset all filters">↺ Reset</button>
+          </div>
+          <div class="fp-heading">Filters</div>
+          <div class="fp-lbl-new">Assurance Period</div>
+          <select class="fp-sel-new f-fix-dark"><option>Latest Month</option></select>
+          <div class="fp-lbl-new">Dataset Status</div>
+          <select class="fp-sel-new f-fix-dark"><option>Current Version</option></select>
+          <div class="fp-lbl-new">Service Provider</div>
+          <select class="fp-sel-new f-fix-dark"><option>All</option></select>
+          <div class="fp-lbl-new">Metric Description</div>
+          <select class="fp-sel-new f-fix-dark"><option>All</option></select>
+          <div class="fp-lbl-new">Service Section</div>
+          <select class="fp-sel-new f-fix-dark"><option>All</option></select>
+        </div>
+        <div style="font-size:10px;line-height:1.7;max-width:200px">
+          <div style="color:var(--s800);margin-bottom:4px"><strong>Fixes applied:</strong></div>
+          <div style="color:var(--s800)">✓ Brand-900 #02185E panel bg</div>
+          <div style="color:var(--s800)">✓ White inputs + Brand-800 text — 10.1:1</div>
+          <div style="color:var(--s800)">✓ Brand-50 #E9E1FE labels — 14.3:1</div>
+          <div style="color:var(--s800)">✓ aria-label="Reset all filters"</div>
+          <div style="color:var(--s800)">✓ Brand-50 focus ring on panel elements</div>
+          <div style="color:var(--s800)">✓ aria-label on version label</div>
+        </div>
+      </div>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Filter panel tokens</div>
+      <div class="tp-r">Panel bg: <strong>#02185E</strong> Brand-900</div>
+      <div class="tp-r">Labels: <strong>#E9E1FE</strong> Brand-50</div>
+      <div class="tp-r">Input bg: <strong>#FFFFFF</strong></div>
+      <div class="tp-r">Input text: <strong>#1A299A</strong> Brand-800</div>
+      <div class="tp-r">Input border: <strong>#CAC3FC</strong> Brand-200</div>
+      <div class="tp-r">Focus ring: <strong>#E9E1FE</strong> 3px</div>
+      <span class="tp-code">.filter-panel :focus-visible {
+  outline: 3px solid #E9E1FE;
+  outline-offset: 3px;
+}</span>
+    </div>
+  </div>
+
+  <!-- Expanded radio state (Qualitative) -->
+  <div class="sh">Expanded radio button state — Qualitative screen Assurance Period</div>
+  <div class="ar" style="min-height:300px">
+    <div class="ar-sev sev-w">FP2</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — radio buttons with low contrast labels inside dark panel</div>
+      <div class="fp-old" style="width:200px">
+        <div class="fp-toprow"><span class="fp-ver-old">1.4.1</span><button class="fp-reset-old">Reset Filters</button></div>
+        <div class="fp-heading">Filters</div>
+        <div class="fp-lbl-old">Assurance Period</div>
+        <div class="fp-radio-grp">
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old sel"></span>Latest Month</label>
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old"></span>August 2025</label>
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old"></span>May 2025</label>
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old"></span>February 2025</label>
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old"></span>November 2024</label>
+          <label class="fp-radio-row-old"><span class="fp-radio-dot-old"></span>August 2024</label>
+        </div>
+        <div class="fp-lbl-old" style="margin-top:8px">Service Section</div>
+        <select class="fp-sel-old"><option>All</option></select>
+      </div>
+      <span class="bx bx-f" style="margin-top:4px">✗ Radio label text rgba(255,255,255,0.75) — ~4.2:1 borderline · no keyboard pattern</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Brand-50 labels, white radio dots, proper keyboard access</div>
+      <div class="fp-new" style="width:200px">
+        <div class="fp-toprow"><span class="fp-ver-new" aria-label="Dashboard version 1.4.1">v1.4.1</span><button class="fp-reset-new f-fix-dark" aria-label="Reset all filters">↺ Reset</button></div>
+        <div class="fp-heading">Filters</div>
+        <div class="fp-lbl-new">Assurance Period</div>
+        <fieldset style="border:none;padding:0">
+          <legend style="display:none">Assurance Period</legend>
+          <div class="fp-radio-grp" role="radiogroup" aria-labelledby="assurance-label">
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new sel"></span>Latest Month</label>
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new"></span>August 2025</label>
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new"></span>May 2025</label>
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new"></span>February 2025</label>
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new"></span>November 2024</label>
+            <label class="fp-radio-row-new"><span class="fp-radio-dot-new"></span>August 2024</label>
+          </div>
+        </fieldset>
+        <div class="fp-lbl-new" style="margin-top:8px">Service Section</div>
+        <select class="fp-sel-new f-fix-dark"><option>All</option></select>
+      </div>
+      <span class="bx bx-p" style="margin-top:4px">✓ Brand-50 #E9E1FE labels — 14.3:1 · role="radiogroup" · Arrow keys navigate</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Radio group tokens</div>
+      <div class="tp-r">Radio label: <strong>#E9E1FE</strong></div>
+      <div class="tp-r">Selected dot: <strong>#2D32C7</strong> Brand-700</div>
+      <div class="tp-r">Dot bg: <strong>#FFFFFF</strong></div>
+      <div class="tp-r">Add: <strong>role="radiogroup"</strong></div>
+      <div class="tp-r">Add: <strong>fieldset + legend</strong></div>
+      <div class="tp-note">Arrow keys must navigate between radio options. Enter/Space selects.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 3 — FOCUS & HOVER
+     ══════════════════════════════════════════════ -->
+<div id="p-focus" class="pane">
+<div class="intro">
+  <div class="intro-title">Focus &amp; Hover — interactive states missing from all screens</div>
+  <div class="intro-sub">Currently no element on any SLA dashboard has a visible focus indicator. These are live — tab through the "before" and "after" examples below to feel the difference.</div>
+</div>
+<div class="wrap">
+
+  <!-- Focus chips -->
+  <div class="sh-group">Focus — chips (all screens) <span class="sc-tag sc-r">WCAG 2.4.7 · 2.4.11</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">F1</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — Tab into these. No focus visible.</div>
+      <div class="chips">
+        <button class="chip c-unsel-fix f-bad" tabindex="0">Select all</button>
+        <button class="chip c-sel-fix f-bad" tabindex="0">✓ Meets Expectation</button>
+        <button class="chip c-unsel-fix f-bad" tabindex="0">Not Applicable</button>
+        <button class="chip c-unsel-fix f-bad" tabindex="0">Minor Imp. Required</button>
+      </div>
+      <span class="bx bx-f">✗ outline:none — keyboard user cannot see position</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Tab into these. Brand-700 ring appears.</div>
+      <div class="chips" role="group" aria-label="Target Indicator filter">
+        <button class="chip c-unsel-fix f-fix" tabindex="0" role="checkbox" aria-checked="false">Select all</button>
+        <button class="chip c-sel-fix f-fix" tabindex="0" role="checkbox" aria-checked="true">✓ Meets Expectation</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0" role="checkbox" aria-checked="false">Not Applicable</button>
+        <button class="chip c-unsel-fix f-fix" tabindex="0" role="checkbox" aria-checked="false">Minor Imp. Required</button>
+      </div>
+      <span class="bx bx-p">✓ 3px Brand-700 #2D32C7 ring · 3px offset</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-700 focus</div>
+      <div class="tp-r">Ring: <strong>#2D32C7</strong> 3px</div>
+      <div class="tp-r">Offset: <strong>3px</strong></div>
+      <span class="tp-code">:focus-visible {
+  outline: 3px solid
+    #2D32C7;
+  outline-offset: 3px;
+}</span>
+    </div>
+  </div>
+
+  <!-- Hover chips -->
+  <div class="sh-group">Hover — chips <span class="sc-tag sc-w">WCAG 1.4.11</span></div>
+  <div class="ar">
+    <style>
+      .chip-hov:hover { background: #E3DFF0 !important; border-color: #A69CF9 !important; }
+      .chip-hov-sel:hover { background: #02185E !important; }
+      .row-hov:hover td { background: var(--b25) !important; cursor:pointer; }
+      .bar-hov:hover { filter: brightness(0.82); cursor:pointer; }
+    </style>
+    <div class="ar-sev sev-w">F2</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — hover over chips. Nothing changes.</div>
+      <div class="chips">
+        <button class="chip c-unsel-fix" style="cursor:pointer">Select all</button>
+        <button class="chip c-sel-fix" style="cursor:pointer">✓ Meets Expectation</button>
+        <button class="chip c-unsel-fix" style="cursor:pointer">Not Applicable</button>
+      </div>
+      <span class="bx bx-f">✗ No hover state — user cannot tell chips are interactive</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — hover over each chip below.</div>
+      <div class="chips">
+        <button class="chip c-unsel-fix chip-hov" style="transition:all 0.15s;cursor:pointer">Select all</button>
+        <button class="chip c-sel-fix chip-hov-sel" style="transition:all 0.15s;cursor:pointer">✓ Meets Expectation</button>
+        <button class="chip c-unsel-fix chip-hov" style="transition:all 0.15s;cursor:pointer">Not Applicable</button>
+      </div>
+      <span class="bx bx-p">✓ Unsel hover: Brand-100 · Selected hover: Brand-900</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Hover tokens</div>
+      <div class="tp-r">Unsel hover: <strong>#E3DFF0</strong> Brand-100</div>
+      <div class="tp-r">Sel hover: <strong>#02185E</strong> Brand-900</div>
+      <span class="tp-code">.chip:hover {
+  background: #E3DFF0;
+  border-color: #A69CF9;
+}
+.chip.selected:hover {
+  background: #02185E;
+}</span>
+    </div>
+  </div>
+
+  <!-- Hover table rows -->
+  <div class="sh-group">Hover — data table rows <span class="sc-tag sc-w">WCAG 1.4.11</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-w">F3</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — hover over rows. Nothing changes.</div>
+      <table class="pt">
+        <thead><tr><th scope="col">Service Def</th><th scope="col">Provider</th><th scope="col">Section</th><th scope="col">Target Indicator</th></tr></thead>
+        <tbody>
+          <tr><td class="fix">RPA</td><td class="fix">Deloitte</td><td class="fix">Change Management</td><td class="fix">Meets Expectation</td></tr>
+          <tr><td class="fix">RTS</td><td class="fix">Capgemini</td><td class="fix">Qualitative</td><td class="fix">Minor Imp. Required</td></tr>
+        </tbody>
+      </table>
+      <span class="bx bx-f">✗ No hover — table rows look non-interactive</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — hover over rows below.</div>
+      <table class="pt">
+        <thead><tr><th class="fix" scope="col">Service Def</th><th class="fix" scope="col">Provider</th><th class="fix" scope="col">Section</th><th class="fix" scope="col">Target Indicator</th></tr></thead>
+        <tbody>
+          <tr class="row-hov"><td class="fix">RPA</td><td class="fix">Deloitte</td><td class="fix">Change Management</td><td class="fix">Meets Expectation</td></tr>
+          <tr class="row-hov"><td class="fix">RTS</td><td class="fix">Capgemini</td><td class="fix">Qualitative</td><td class="fix">Minor Imp. Required</td></tr>
+        </tbody>
+      </table>
+      <span class="bx bx-p">✓ Brand-25 #F0EFFE row hover · white at rest</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Brand-25 hover</div>
+      <div class="tp-r">Hover bg: <strong>#F0EFFE</strong></div>
+      <div class="tp-r">Rest bg: <strong>#FFFFFF</strong> unchanged</div>
+      <span class="tp-code">tbody tr:hover td {
+  background: #F0EFFE;
+  cursor: pointer;
+}</span>
+    </div>
+  </div>
+
+  <!-- Hover bars -->
+  <div class="sh-group">Hover — chart bars <span class="sc-tag sc-w">WCAG 1.4.11</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-w">F4</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — hover over bars. No feedback.</div>
+      <div class="hb-wrap">
+        <div class="hb-row"><div class="hb-lbl-fix">Change Management</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:100%;background:#1A299A;color:#F0EFFE">100.00%</div></div></div>
+        <div class="hb-row"><div class="hb-lbl-fix">Qualitative</div><div class="hb-track" style="background:#E9E1FE"><div class="hb-seg" style="width:88.24%;background:#2D32C7;color:#F0EFFE">88.24%</div><div class="hb-seg" style="width:11.76%;background:#B42318"></div></div></div>
+      </div>
+      <span class="bx bx-f">✗ No hover — bars do not signal interactivity</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — hover over each bar row.</div>
+      <div class="hb-wrap">
+        <div class="hb-row"><div class="hb-lbl-fix">Change Management</div><div class="hb-track bar-hov" style="background:#E9E1FE;transition:filter 0.15s"><div class="hb-seg" style="width:100%;background:#1A299A;color:#F0EFFE">100.00%</div></div></div>
+        <div class="hb-row"><div class="hb-lbl-fix">Qualitative</div><div class="hb-track bar-hov" style="background:#E9E1FE;transition:filter 0.15s"><div class="hb-seg" style="width:88.24%;background:#2D32C7;color:#F0EFFE">88.24%</div><div class="hb-seg" style="width:11.76%;background:#B42318"></div></div></div>
+      </div>
+      <span class="bx bx-p">✓ brightness(0.82) on hover · preserves DS token colours</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Bar hover</div>
+      <div class="tp-r">Method: <strong>brightness(0.82)</strong></div>
+      <span class="tp-code">.bar-row:hover {
+  filter: brightness(0.82);
+  cursor: pointer;
+  transition: 0.15s;
+}</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 4 — TOOLTIPS
+     ══════════════════════════════════════════════ -->
+<div id="p-tooltips" class="pane">
+<div class="intro">
+  <div class="intro-title">Tooltips &amp; Popover cards — hover-only, low contrast, no ARIA</div>
+  <div class="intro-sub">The floating detail card (visible in screenshots) and inline tooltips both fail. They are mouse-hover only — keyboard users cannot access this data at all.</div>
+</div>
+<div class="wrap">
+
+  <!-- Popup card -->
+  <div class="sh-group">Floating chart detail card — visible in Qualitative screenshots <span class="sc-tag sc-r">WCAG 2.1.1 · 4.1.2</span></div>
+  <div class="ar" style="min-height:180px">
+    <div class="ar-sev sev-c">T1</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — mouse-only, no ARIA, no keyboard close</div>
+      <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div class="popup-bad">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:10px;color:#aaa">Service Definition Section</span>
+            <button class="popup-close-bad">✕</button>
+          </div>
+          <div class="popup-row"><span class="popup-key">Target Indicator</span><span class="popup-val">Change Management</span></div>
+          <div class="popup-row"><span class="popup-key">Target Indicator</span><span class="popup-val">Meets Expectation</span></div>
+          <div class="popup-row" style="border-bottom:none"><span class="popup-key">Number of Submissions</span><span class="popup-val">1 (100%)</span></div>
+        </div>
+        <div style="font-size:10px;color:var(--e700);line-height:1.7;max-width:180px">
+          ✗ Hover-only trigger<br>
+          ✗ No role="dialog"<br>
+          ✗ No aria-label<br>
+          ✗ Close ✕ not keyboard focusable<br>
+          ✗ Escape doesn't close<br>
+          ✗ Focus not trapped
+        </div>
+      </div>
+      <span class="bx bx-f">✗ Keyboard-inaccessible — all chart detail data hidden from keyboard users</span>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — role=dialog, keyboard trigger, Escape closes, close button focusable</div>
+      <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div class="popup-fix" role="dialog" aria-label="Chart detail: Change Management" aria-modal="true">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:10px;color:var(--b700);font-family:var(--mono)">Service Definition Section</span>
+            <button class="popup-close-fix f-fix" aria-label="Close detail panel">✕</button>
+          </div>
+          <div class="popup-row"><span class="popup-key">Target Indicator</span><span class="popup-val" style="color:var(--b800)">Change Management</span></div>
+          <div class="popup-row"><span class="popup-key">Target Indicator</span><span class="popup-val" style="color:var(--b800)">Meets Expectation</span></div>
+          <div class="popup-row" style="border-bottom:none"><span class="popup-key">Submissions</span><span class="popup-val" style="color:var(--b800)">1 (100%)</span></div>
+          <div style="font-size:8px;color:var(--g500);margin-top:6px">Press Esc to close · Tab to navigate</div>
+        </div>
+        <div style="font-size:10px;color:var(--s800);line-height:1.7;max-width:180px">
+          ✓ Hover + :focus trigger<br>
+          ✓ role="dialog" aria-modal<br>
+          ✓ aria-label with context<br>
+          ✓ Close button focusable<br>
+          ✓ Escape → close<br>
+          ✓ Focus trapped inside
+        </div>
+      </div>
+      <span class="bx bx-p">✓ Keyboard accessible · proper ARIA · Brand-200 border · white card bg</span>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Dialog tokens</div>
+      <div class="tp-r">Border: <strong>#CAC3FC</strong> 2px</div>
+      <div class="tp-r">Title: <strong>#2D32C7</strong> Brand-700</div>
+      <div class="tp-r">Values: <strong>#1A299A</strong> Brand-800</div>
+      <div class="tp-r">Close bg: <strong>#F0EFFE</strong> Brand-25</div>
+      <span class="tp-code">role="dialog"
+aria-modal="true"
+aria-label="Chart detail: [name]"
+
+<!-- Close button -->
+aria-label="Close detail panel"
+
+<!-- Keyboard behaviour -->
+Escape → close
+Tab → cycle inside popup
+Return focus → trigger element</span>
+    </div>
+  </div>
+
+  <!-- Inline tooltip -->
+  <div class="sh-group">Inline chart tooltips — bar and donut hover <span class="sc-tag sc-r">WCAG 1.4.3 · 1.4.13</span></div>
+  <div class="ar">
+    <div class="ar-sev sev-c">T2</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Current — low contrast bg, hover-only, no ARIA link</div>
+      <div style="margin-top:12px">
+        <div class="tip-bad">DCC · Target Met: 17 submissions</div>
+      </div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-f">✗ #888 bg + white text — 2.3:1 fails 4.5:1</span>
+        <span class="bx bx-f">✗ Hover-only — keyboard cannot trigger</span>
+        <span class="bx bx-f">✗ No role="tooltip" or aria-describedby</span>
+      </div>
+    </div>
+    <div class="ar-arrow">→</div>
+    <div class="ar-pane">
+      <div class="ar-lbl">Fix — Gray-900 bg, Gray-25 text, keyboard + hover, ARIA linked</div>
+      <div style="margin-top:12px">
+        <div class="tip-fix" role="tooltip" id="tip-demo">
+          <strong style="color:var(--g25);display:block;margin-bottom:3px">DCC — Target Met</strong>
+          17 submissions · 8.8:1 contrast ✓
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:3px">
+        <span class="bx bx-p">✓ Gray-900 #101828 bg + Gray-25 text — 16:1</span>
+        <span class="bx bx-p">✓ Shown on :focus AND :hover</span>
+        <span class="bx bx-p">✓ role="tooltip" · aria-describedby linked</span>
+      </div>
+    </div>
+    <div class="ar-token">
+      <div class="tp-name">Gray-900 · Gray-25</div>
+      <div class="tp-r">Tooltip bg: <strong>#101828</strong></div>
+      <div class="tp-r">Tooltip text: <strong>#FCFCFD</strong></div>
+      <div class="tp-r">Border: <strong>#30374F</strong></div>
+      <span class="tp-code">role="tooltip"
+id="tip-[id]"
+
+<!-- On trigger: -->
+aria-describedby="tip-[id]"
+
+<!-- Show on hover + focus -->
+<!-- WCAG 1.4.13: tooltip must
+     persist when user moves
+     mouse onto it --></span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 5 — POUR
+     ══════════════════════════════════════════════ -->
+<div id="p-pour" class="pane">
+<div class="intro">
+  <div class="intro-title">POUR Principles — <span style="font-size:14px;font-weight:400;color:var(--g600)">Optional · Things to look out for and consider</span></div>
+  <div class="intro-sub">POUR is the accessibility framework underlying WCAG. These are not mandatory fixes but good practice considerations — awareness of these will help catch issues earlier and improve the overall quality of the dashboard for all users.</div>
+</div>
+<div class="wrap">
+  <div class="pour-grid">
+
+    <div class="pour-card">
+      <div class="pour-hdr">
+        <div class="pour-letter pl-p">P</div>
+        <div><div class="pour-name">Perceivable</div><div class="pour-def">Information must be presentable to users in ways they can perceive</div></div>
+      </div>
+      <div class="pour-body">
+        <div class="pi"><div class="pi-head"><span class="pi-name">KPI amber numbers</span><span class="pi-sc">1.4.11</span></div><span class="pi-fail">Warning-400 #FDB022 on white — 2.1:1 fails</span><span class="pi-fix">→ Warning-800 #93370D on white — 7.2:1 ✓</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Selected chip fill</span><span class="pi-sc">1.4.3</span></div><span class="pi-fail">Brand-400 #8A7AF8 — 2.8:1 fails 4.5:1</span><span class="pi-fix">→ Brand-800 #1A299A + Brand-25 text — 10.1:1 ✓</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Donut — colour-only segments</span><span class="pi-sc">1.4.1</span></div><span class="pi-fail">All segments colour-only — fails for colour-blind users</span><span class="pi-fix">→ Brand-700 ■ · Warn-700 — · Error-700 ○ + shapes</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Filter inputs + labels</span><span class="pi-sc">1.4.3</span></div><span class="pi-fail">White on mid-purple ~3.1:1 · labels ~3.4:1 fails</span><span class="pi-fix">→ White inputs, Brand-800 text — 10.1:1 ✓</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Tooltip contrast</span><span class="pi-sc">1.4.3</span></div><span class="pi-fail">#888 tooltip bg — white text 2.3:1 fails</span><span class="pi-fix">→ Gray-900 #101828 bg + Gray-25 text — 16:1 ✓</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Chart + table label text</span><span class="pi-sc">1.4.3</span></div><span class="pi-fail">#888 muted grey on white — 3.0:1 fails</span><span class="pi-fix">→ Gray-700 #30374F on white — 11.8:1 ✓</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Charts — no text alternative</span><span class="pi-sc">1.1.1</span></div><span class="pi-fail">SVG/canvas with no aria-label — screen readers get nothing</span><span class="pi-fix">→ role="img" aria-label="[data summary]" on every chart</span></div>
+      </div>
+    </div>
+
+    <div class="pour-card">
+      <div class="pour-hdr">
+        <div class="pour-letter pl-o">O</div>
+        <div><div class="pour-name">Operable</div><div class="pour-def">UI components must be operable by all input methods</div></div>
+      </div>
+      <div class="pour-body">
+        <div class="pi"><div class="pi-head"><span class="pi-name">No focus indicator anywhere</span><span class="pi-sc">2.4.7</span></div><span class="pi-fail">Every element has outline:none — keyboard navigation invisible</span><span class="pi-fix">→ :focus-visible { outline: 3px solid #2D32C7; offset: 3px; }</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Filter panel — no focus ring</span><span class="pi-sc">2.4.7</span></div><span class="pi-fail">Selects and Reset button unreachable by keyboard</span><span class="pi-fix">→ .filter-panel :focus-visible { outline: 3px solid #E9E1FE; }</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Chart popup — mouse only</span><span class="pi-sc">2.1.1</span></div><span class="pi-fail">Detail card only shows on mouse hover</span><span class="pi-fix">→ Trigger on :focus · role="dialog" · Escape closes</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Chip group — no keyboard pattern</span><span class="pi-sc">2.1.1</span></div><span class="pi-fail">No roving tabindex · Space/Enter not handled</span><span class="pi-fix">→ role="group" + role="checkbox" + Space = toggle</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Focus not obscured (new 2.2)</span><span class="pi-sc">2.4.11</span></div><span class="pi-fail">Focused element may be hidden behind sticky header on scroll</span><span class="pi-fix">→ Ensure sticky header does not cover focused elements</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Touch targets too small</span><span class="pi-sc">2.5.5</span></div><span class="pi-fail">Chips and selects below 44×44px minimum</span><span class="pi-fix">→ min-height: 44px · min-width: 44px on all interactive elements</span></div>
+      </div>
+    </div>
+
+    <div class="pour-card">
+      <div class="pour-hdr">
+        <div class="pour-letter pl-u">U</div>
+        <div><div class="pour-name">Understandable</div><div class="pour-def">Content and operation must be understandable</div></div>
+      </div>
+      <div class="pour-body">
+        <div class="pi"><div class="pi-head"><span class="pi-name">Version label "1.4.1" cryptic</span><span class="pi-sc">4.1.2</span></div><span class="pi-fail">Sighted users guess what it means — no accessible label</span><span class="pi-fix">→ aria-label="Dashboard version 1.4.1"</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Filter changes — silent</span><span class="pi-sc">4.1.3</span></div><span class="pi-fail">Selecting a filter silently updates charts — no announcement</span><span class="pi-fix">→ aria-live="polite": "Showing 17 results for Latest Month"</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Inconsistent filter layout</span><span class="pi-sc">3.2.4</span></div><span class="pi-fail">CSS screen has different filter slots to Qualitative screen</span><span class="pi-fix">→ Standardise order. Disable irrelevant filters with aria-disabled</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Truncated labels</span><span class="pi-sc">2.4.6</span></div><span class="pi-fail">"Committee Managem..." — full text not accessible without mouse</span><span class="pi-fix">→ Full label in aria-label on each bar + tooltip on focus</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">No heading hierarchy</span><span class="pi-sc">2.4.6</span></div><span class="pi-fail">Title + section headings are styled text, not H1/H2/H3</span><span class="pi-fix">→ H1 = page title · H2 = chart sections · role="main"</span></div>
+      </div>
+    </div>
+
+    <div class="pour-card">
+      <div class="pour-hdr">
+        <div class="pour-letter pl-r">R</div>
+        <div><div class="pour-name">Robust</div><div class="pour-def">Content must work with current and future assistive technologies</div></div>
+      </div>
+      <div class="pour-body">
+        <div class="pi"><div class="pi-head"><span class="pi-name">Chip group — no ARIA roles</span><span class="pi-sc">4.1.2</span></div><span class="pi-fail">No role="group" · no aria-checked · announced as generic divs</span><span class="pi-fix">→ role="group" + role="checkbox" + aria-checked="true/false"</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Data table — no scope</span><span class="pi-sc">1.3.1</span></div><span class="pi-fail">No scope="col" — screen readers cannot associate headers</span><span class="pi-fix">→ scope="col" all th · aria-label on table element</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Off-system colours in code</span><span class="pi-sc">1.4.3</span></div><span class="pi-fail">#9B96D8 · #D85A30 · #888 not in Design System — fragile</span><span class="pi-fix">→ Replace with Brand-700 · Error-700 · Gray-700 tokens</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">SVG text not scalable</span><span class="pi-sc">1.4.4</span></div><span class="pi-fail">Chart axis text below 12px · doesn't scale with browser zoom</span><span class="pi-fix">→ Min 12px all axis labels · test at 200% browser zoom</span></div>
+        <div class="pi"><div class="pi-head"><span class="pi-name">Radio group — no fieldset</span><span class="pi-sc">1.3.1</span></div><span class="pi-fail">Assurance Period radio buttons lack grouping markup</span><span class="pi-fix">→ fieldset + legend · role="radiogroup" · Arrow keys navigate</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 6 — DEV CHECKLIST
+     ══════════════════════════════════════════════ -->
+<div id="p-checklist" class="pane">
+<div class="intro">
+  <div class="intro-title">Developer Checklist — every fix, prioritised by sprint</div>
+  <div class="intro-sub">All fixes use exact REC Design System tokens only. P1 = critical, fix immediately · P2 = next iteration · P3 = consider and look out for.</div>
+</div>
+<div class="wrap">
+  <table class="dev-table">
+    <thead>
+      <tr><th style="width:44px">Pri</th><th style="width:160px">Component</th><th>What to do</th><th style="width:130px">DS Token</th><th style="width:60px">WCAG SC</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="spr-1">P1</span></td><td>KPI numbers</td><td>Text colour: <code>#FDB022</code> → <code>#93370D</code>. White card unchanged.</td><td><code>Warning-800</code></td><td>1.4.11</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Selected chip</td><td>Fill: <code>#8A7AF8</code> → <code>#1A299A</code>. Text: white → <code>#F0EFFE</code>.</td><td><code>Brand-800 / Brand-25</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Unselected chip</td><td>Fill: <code>#F0EFFE</code>. Text: <code>#1A299A</code>. Border: <code>#CAC3FC</code>.</td><td><code>Brand-25 / Brand-800 / Brand-200</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Filter panel bg</td><td>Background: current mid-purple → <code>#02185E</code>.</td><td><code>Brand-900</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Filter labels</td><td>Label text colour → <code>#E9E1FE</code>. (was rgba white)</td><td><code>Brand-50</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Filter inputs</td><td>Input bg: <code>#FFFFFF</code>. Input text: <code>#1A299A</code>. Border: <code>#CAC3FC</code>.</td><td><code>Brand-800 / Brand-200</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Focus — all elements</td><td>Add globally: <code>:focus-visible { outline: 3px solid #2D32C7; outline-offset: 3px; }</code></td><td><code>Brand-700</code></td><td>2.4.7</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Focus — filter panel</td><td>Add: <code>.filter-panel :focus-visible { outline: 3px solid #E9E1FE; }</code></td><td><code>Brand-50</code></td><td>2.4.7</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Chart donut — segments</td><td>Segment fills: <code>#2D32C7</code> ■ · <code>#B54708</code> — · <code>#B42318</code> ○. Legend adds shapes.</td><td><code>Brand-700 / Warn-700 / Error-700</code></td><td>1.4.1 / 1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Bar chart text labels</td><td>All <code>#888</code> / <code>#aaa</code> → <code>#30374F</code>. White bg unchanged.</td><td><code>Gray-700</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-1">P1</span></td><td>Table body text</td><td>All <code>#888</code> → <code>#30374F</code>. Rows stay white.</td><td><code>Gray-700</code></td><td>1.4.3</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Chip group ARIA</td><td>Add <code>role="group" aria-labelledby</code> on wrapper. <code>role="checkbox" aria-checked</code> on each chip. Space = toggle.</td><td>ARIA</td><td>4.1.2</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>All charts</td><td>Add <code>role="img" aria-label="[full data summary]"</code> to every chart container.</td><td>ARIA</td><td>1.1.1</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Chart popup</td><td>Add <code>role="dialog" aria-modal="true" aria-label</code>. Keyboard trigger. Escape closes. Focus trap. Close button: <code>aria-label="Close detail panel"</code>.</td><td>ARIA</td><td>2.1.1</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Tooltips</td><td>Add <code>role="tooltip"</code>. Link with <code>aria-describedby</code>. Trigger on :focus and hover. Bg: <code>#101828</code>. Text: <code>#FCFCFD</code>.</td><td><code>Gray-900 / Gray-25</code></td><td>1.4.3 / 1.4.13</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Hover — table rows</td><td><code>tbody tr:hover td { background: #F0EFFE; }</code></td><td><code>Brand-25</code></td><td>1.4.11</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Hover — chips</td><td>Unsel hover: <code>#E3DFF0</code>. Selected hover: <code>#02185E</code>.</td><td><code>Brand-100 / Brand-900</code></td><td>1.4.11</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Hover — bars</td><td><code>.bar:hover { filter: brightness(0.82); cursor: pointer; }</code></td><td>CSS filter</td><td>1.4.11</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Table headers</td><td>Add <code>scope="col"</code> all th. Add <code>aria-label="SLA submission details"</code> on table. <code>tabindex="0"</code> on rows.</td><td>ARIA</td><td>1.3.1</td></tr>
+      <tr><td><span class="spr-2">P2</span></td><td>Radio group filter</td><td>Add <code>fieldset + legend</code>. Add <code>role="radiogroup"</code>. Arrow keys navigate options.</td><td>ARIA</td><td>1.3.1</td></tr>
+      <tr><td><span class="spr-3">P3</span></td><td>Filter live region</td><td>Add <code>aria-live="polite"</code> region: announces "Showing X results for [filter]" after each change.</td><td>ARIA</td><td>4.1.3</td></tr>
+      <tr><td><span class="spr-3">P3</span></td><td>Touch targets</td><td>All chips, selects, buttons → <code>min-height: 44px; min-width: 44px</code>.</td><td>Spacing</td><td>2.5.5</td></tr>
+      <tr><td><span class="spr-3">P3</span></td><td>Heading hierarchy</td><td>Page title → <code>&lt;h1&gt;</code>. Chart sections → <code>&lt;h2&gt;</code>. Add <code>role="main"</code> on content area.</td><td>Semantic HTML</td><td>2.4.6</td></tr>
+      <tr><td><span class="spr-3">P3</span></td><td>Filter consistency</td><td>Standardise filter order across all 3 screens. Disable unused with <code>aria-disabled="true"</code>.</td><td>ARIA</td><td>3.2.4</td></tr>
+    </tbody>
+  </table>
+
+
+</div>
+</div>
+
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
